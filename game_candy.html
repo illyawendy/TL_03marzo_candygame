@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Caramelos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/howler/2.2.3/howler.min.js"></script>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background: linear-gradient(45deg, #6a11cb, #2575fc);
+            font-family: Arial, sans-serif;
+        }
+        .game-container {
+            position: relative;
+            width: 320px;
+            height: 480px;
+            background: #fff;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(8, 40px);
+            grid-gap: 2px;
+            margin: auto;
+        }
+        .cell {
+            width: 40px;
+            height: 40px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .start-btn {
+            background: #ff4081;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            margin-top: 20px;
+            font-size: 18px;
+            cursor: pointer;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <h2>¡Combina los Caramelos!</h2>
+        <div class="grid" id="grid"></div>
+        <button class="start-btn" onclick="startGame()">Jugar</button>
+        <p>Puntuación: <span id="score">0</span></p>
+    </div>
+    <script>
+        const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#ff8800'];
+        let grid = [];
+        let score = 0;
+
+        function createGrid() {
+            const gridElement = document.getElementById("grid");
+            gridElement.innerHTML = '';
+            grid = [];
+            for (let i = 0; i < 64; i++) {
+                let cell = document.createElement("div");
+                cell.classList.add("cell");
+                let color = colors[Math.floor(Math.random() * colors.length)];
+                cell.style.background = color;
+                cell.dataset.color = color;
+                cell.addEventListener("click", () => checkMatch(i));
+                gridElement.appendChild(cell);
+                grid.push(cell);
+            }
+        }
+
+        function checkMatch(index) {
+            let color = grid[index].dataset.color;
+            let matched = [index];
+            if (index % 8 > 0 && grid[index - 1].dataset.color === color) matched.push(index - 1);
+            if (index % 8 < 7 && grid[index + 1].dataset.color === color) matched.push(index + 1);
+            if (index >= 8 && grid[index - 8].dataset.color === color) matched.push(index - 8);
+            if (index < 56 && grid[index + 8].dataset.color === color) matched.push(index + 8);
+            
+            if (matched.length > 2) {
+                matched.forEach(i => {
+                    grid[i].style.background = 'white';
+                    grid[i].dataset.color = '';
+                });
+                score += matched.length;
+                document.getElementById("score").textContent = score;
+                gsap.fromTo(grid[index], { scale: 1.2 }, { scale: 1, duration: 0.5 });
+            }
+        }
+        
+        function startGame() {
+            score = 0;
+            document.getElementById("score").textContent = score;
+            createGrid();
+        }
+    </script>
+</body>
+</html>
